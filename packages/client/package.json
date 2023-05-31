@@ -24,5 +24,8 @@
     "dist",
     "src",
     "README.md"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

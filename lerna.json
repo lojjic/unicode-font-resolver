@@ -9,5 +9,6 @@
     "publish": {
       "allowBranch": "main"
     }
-  }
+  },
+  "access": "public"
 }

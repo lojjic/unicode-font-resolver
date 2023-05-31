@@ -14,6 +14,9 @@
     "index",
     "README.md"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "devDependencies": {
     "@unicode-font-resolver/shared": "^0.1.2"
   }
