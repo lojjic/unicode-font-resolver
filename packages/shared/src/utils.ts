@@ -24,7 +24,7 @@ export function getPlaneForCodePoint(codePoint: number): number {
 }
 
 export function getBucketJsonPathForCodePoint(codePoint: number): string {
-  return `index/plane${getPlaneForCodePoint(codePoint)}/${getBucketStringForCodePoint(codePoint)}.json`
+  return `codepoint-index/plane${getPlaneForCodePoint(codePoint)}/${getBucketStringForCodePoint(codePoint)}.json`
 }
 
 const COVERAGE_ENCODING_BITS_PER_CHAR = 6

@@ -90,7 +90,7 @@ export async function getFontsForString(
             for (let fontName in bucket[langRE]) {
               const coverage = bucket[langRE][fontName];
               if (isCodePointInBucketCoverage(codePoint, coverage)) {
-                fontMetaUrl = `${baseUrl}/fonts/${fontName}/meta.json`;
+                fontMetaUrl = `${baseUrl}/font-meta/${fontName}.json`;
                 break categoriesLoop;
               }
             }
@@ -102,7 +102,7 @@ export async function getFontsForString(
       // TODO - Should we choose a fallback font here or just leave it empty for downstream handling?
       if (!fontMetaUrl) {
         console.debug(`No font coverage for U+${codePoint.toString(16)}`);
-        fontMetaUrl = `${dataSansUrl}/fonts/latin/meta.json`;
+        fontMetaUrl = `${dataSansUrl}/font-meta/latin.json`;
       }
 
       fontInfo = fontInfoCache[fontMetaUrl] || (fontInfoCache[fontMetaUrl] = {
@@ -125,7 +125,7 @@ export async function getFontsForString(
       const validCategory = findValidKey(typeforms, category, 'sans-serif') as FontCategory;
       const validStyle = findValidKey(typeforms[validCategory]!, style, 'normal') as FontStyle;
       const validWeight = findNearestNumber(typeforms[validCategory]?.[validStyle] as number[], weight);
-      woffUrl = fontInfo.woffUrl = `${fontInfo.baseUrl}/fonts/${fontInfo.meta.id}/${validCategory}.${validStyle}.${validWeight}.woff`
+      woffUrl = fontInfo.woffUrl = `${fontInfo.baseUrl}/font-files/${fontInfo.meta.id}/${validCategory}.${validStyle}.${validWeight}.woff`
     }
 
     let fontIndex = fontUrlIndices.get(woffUrl)

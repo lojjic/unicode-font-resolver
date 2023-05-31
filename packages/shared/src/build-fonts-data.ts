@@ -13,8 +13,9 @@ export async function buildFontsData(
   cacheDir:string
 ) {
   const notoFonts = getNotoFonts();
-  const indexOutputDir = `${outputRootDir}/index`
-  const fontsOutputDir = `${outputRootDir}/fonts`
+  const indexOutputDir = `${outputRootDir}/codepoint-index`
+  const fontMetaOutputDir = `${outputRootDir}/font-meta`
+  const fontFilesOutputDir = `${outputRootDir}/font-files`
 
   const bucketsData: { [bucket: string]: BucketData } = {};
   const fontMetaData: { [fontId: string]: FontData } = {};
@@ -101,7 +102,7 @@ export async function buildFontsData(
             weights.push(weight);
             fontsToDownload.push({
               sourceUrl,
-              localPath: `${fontsOutputDir}/${subsetId}/${category}.${style}.${weight}.woff`
+              localPath: `${fontFilesOutputDir}/${subsetId}/${category}.${style}.${weight}.woff`
             });
           }
         });
@@ -160,7 +161,7 @@ export async function buildFontsData(
   }
 
   // Write out the files
-  for (const dir of [fontsOutputDir, indexOutputDir]) {
+  for (const dir of [fontMetaOutputDir, fontFilesOutputDir, indexOutputDir]) {
     if (existsSync(dir)) {
       rmdirSync(dir, { recursive: true });
     }
@@ -173,8 +174,8 @@ export async function buildFontsData(
     writeFileSync(`${outputRootDir}/${path}`, stringify(bucketsData[path]));
   }
   for (let id in fontMetaData) {
-    mkdirSync(`${fontsOutputDir}/${id}`, {recursive: true});
-    writeFileSync(`${fontsOutputDir}/${id}/meta.json`, stringify(fontMetaData[id]));
+    writeFileSync(`${fontMetaOutputDir}/${id}.json`, stringify(fontMetaData[id]));
+    mkdirSync(`${fontFilesOutputDir}/${id}`, {recursive: true})
   }
 
   // Fetch all woffs

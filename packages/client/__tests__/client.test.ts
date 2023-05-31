@@ -54,7 +54,9 @@ describe('Client', () => {
     const result = await getFontsForString(text, { dataSansUrl, dataSerifUrl, ...opts });
     // console.timeEnd("query");
     return {
-      fontUrls: result.fontUrls.map(url => url.replace(dataSansUrl, '').replace(dataSerifUrl, '')),
+      fontUrls: result.fontUrls.map(url =>
+        url.replace(dataSansUrl, 'data-sans').replace(dataSerifUrl, 'data-serif')
+      ),
       chars: result.chars,
     };
   }
@@ -70,12 +72,7 @@ describe('Client', () => {
         });
         for (const f of result.fontUrls) {
           fontFiles.add(f);
-          try {
-            fontBytes += statSync(dataSansUrl + f).size
-          } catch(e) {}
-          try {
-            fontBytes += statSync(dataSerifUrl + f).size
-          } catch(e) {}
+          fontBytes += statSync(resolve(__dirname, '../../' + f)).size
           // same: fontBytes += await gzipSizeFromFile(dataUrl + f);
         }
         expect(new Set(result.chars).size).toEqual(result.fontUrls.length)
