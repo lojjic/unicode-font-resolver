@@ -10,7 +10,8 @@
   "types": "dist/client.esm.d.ts",
   "scripts": {
     "build": "rollup -c rollup.config.js",
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "@unicode-font-resolver/shared": "^0.1.0",
