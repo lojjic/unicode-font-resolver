@@ -10,8 +10,9 @@
     "test": "jest"
   },
   "files": [
-    "fonts",
-    "index",
+    "codepoint-index/",
+    "font-meta/",
+    "font-files/",
     "README.md"
   ],
   "publishConfig": {
