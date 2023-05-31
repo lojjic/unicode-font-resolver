@@ -1,0 +1,27 @@
+{
+  "name": "@unicode-font-resolver/client",
+  "version": "0.1.0",
+  "description": "A JavaScript client for resolving a unicode string to a set of fonts that cover its characters",
+  "author": "Jason Johnston",
+  "homepage": "",
+  "license": "MIT",
+  "main": "dist/client.umd.js",
+  "module": "dist/client.esm.js",
+  "types": "dist/client.esm.d.ts",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@unicode-font-resolver/shared": "^0.1.0",
+    "@types/node-fetch": "^2.6.2",
+    "brotli-size": "^4.0.0",
+    "gzip-size": "^6.0.0",
+    "node-fetch": "^2.6.8"
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ]
+}

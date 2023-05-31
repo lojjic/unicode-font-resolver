@@ -1,0 +1,20 @@
+{
+  "name": "@unicode-font-resolver/data-sans",
+  "version": "0.1.0",
+  "description": "> TODO: description",
+  "author": "Jason Johnston",
+  "homepage": "",
+  "license": "MIT",
+  "scripts": {
+    "build": "ts-node build.ts",
+    "test": "jest"
+  },
+  "files": [
+    "fonts",
+    "index",
+    "README.md"
+  ],
+  "devDependencies": {
+    "@unicode-font-resolver/shared": "^0.1.0"
+  }
+}

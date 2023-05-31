@@ -1,0 +1,19 @@
+{
+  "name": "@unicode-font-resolver/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "> TODO: description",
+  "author": "Jason Johnston <jason@lojjic.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "devDependencies": {
+    "@types/download": "^8.0.2",
+    "download": "^8.0.0",
+    "google-font-metadata": "5.0.1"
+  }
+}
