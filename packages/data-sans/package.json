@@ -1,6 +1,6 @@
 {
   "name": "@unicode-font-resolver/data-sans",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "> TODO: description",
   "author": "Jason Johnston",
   "homepage": "",
@@ -15,6 +15,6 @@
     "README.md"
   ],
   "devDependencies": {
-    "@unicode-font-resolver/shared": "^0.1.1"
+    "@unicode-font-resolver/shared": "^0.1.2"
   }
 }
