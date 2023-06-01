@@ -1,6 +1,6 @@
 import { BucketRange, EncodedCoverage } from "./types";
 
-const BUCKET_BIT_SIZE = 7
+const BUCKET_BIT_SIZE = 8
 export const BUCKET_SIZE = 2 ** BUCKET_BIT_SIZE
 const BUCKET_POSITION_MASK = (1 << BUCKET_BIT_SIZE) - 1
 const BUCKET_START_MASK = ~BUCKET_POSITION_MASK
