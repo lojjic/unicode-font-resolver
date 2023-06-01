@@ -12,7 +12,7 @@ let bucketDataCache: { [url: string]: BucketData } = {};
 let fontInfoCache: { [url: string]: FontData } = {};
 const codePointSets = new WeakMap();
 
-const DEFAULT_DATA_URL = `https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@${dataVersion}/packages/data`
+const DEFAULT_DATA_URL = `https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@v${dataVersion}/packages/data`
 
 
 function codePointSetForFont(font: FontData) {
