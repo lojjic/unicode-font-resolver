@@ -4,12 +4,13 @@ import { resolve } from "node:path";
 import { clearCache, ClientOptions, getFontsForString } from "../src";
 import { statSync } from "node:fs";
 import { readFile, stat } from "node:fs/promises";
-import { file as brotliSizeFromFile } from "brotli-size";
-import { file as gzipSizeFromFile } from "gzip-size";
+import { sync as brotliSize } from "brotli-size";
+import { sync as gzipSize } from "gzip-size";
 import { FontCategory } from "@unicode-font-resolver/shared";
+import {default as nodeFetch} from 'node-fetch'
 
-const dataSansUrl = resolve(__dirname, "../../data-sans");
-const dataSerifUrl = resolve(__dirname, "../../data-serif");
+const dataUrl = resolve(__dirname, "../../data");
+// const dataUrl = `https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver/packages/data`
 
 describe('Client', () => {
 
@@ -32,11 +33,13 @@ describe('Client', () => {
     // tracks bytes loaded for stats
     // @ts-ignore
     globalThis.fetch = async function(url: string) {
-      const text = await readFile(url, { encoding: "utf8" });
+      const text = url.startsWith('http') ?
+        await nodeFetch(url).then(r => r.text()) :
+        await readFile(url, { encoding: "utf8" });
       totalFiles++;
-      totalBytesRaw += (await stat(url)).size;
-      totalBytesGzip += await gzipSizeFromFile(url);
-      totalBytesBrotli += await brotliSizeFromFile(url);
+      totalBytesRaw += text.length;
+      totalBytesGzip += gzipSize(text);
+      totalBytesBrotli += brotliSize(url);
       return {
         async json() {
           return JSON.parse(text);
@@ -50,12 +53,12 @@ describe('Client', () => {
   });
 
   async function doQuery(text: string, opts: ClientOptions) {
-    // console.time("query");
-    const result = await getFontsForString(text, { dataSansUrl, dataSerifUrl, ...opts });
-    // console.timeEnd("query");
+    console.time("query");
+    const result = await getFontsForString(text, { dataUrl, ...opts });
+    console.timeEnd("query");
     return {
       fontUrls: result.fontUrls.map(url =>
-        url.replace(dataSansUrl, 'data-sans').replace(dataSerifUrl, 'data-serif')
+        url.replace(dataUrl + '/', '')
       ),
       chars: result.chars,
     };
@@ -66,13 +69,12 @@ describe('Client', () => {
       test(`Query - ${name} = ${category}`, async () => {
         const result = await doQuery(text, {
           category,
-          dataSansUrl,
-          dataSerifUrl,
+          dataUrl,
           lang: name === 'Japanese' ? 'ja' : undefined,
         });
         for (const f of result.fontUrls) {
           fontFiles.add(f);
-          fontBytes += statSync(resolve(__dirname, '../../' + f)).size
+          fontBytes += statSync(resolve(__dirname, '../../data/' + f)).size
           // same: fontBytes += await gzipSizeFromFile(dataUrl + f);
         }
         expect(new Set(result.chars).size).toEqual(result.fontUrls.length)
@@ -89,7 +91,7 @@ describe('Client', () => {
           + `${fontFiles.size} files\n`
           + `${fontBytes} bytes\n`
         );
-      });
+      }, 30000);
     }
   }
 
