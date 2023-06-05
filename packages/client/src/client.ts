@@ -36,18 +36,17 @@ type Result = {
   chars: Uint8Array
 }
 
-export async function getFontsForString(
+export function getFontsForString(
   textString: string,
-  options?: ClientOptions
+  options: ClientOptions = {}
 ): Promise<Result> {
-  let { lang, category, style, weight, dataUrl }: ClientOptions = Object.assign({
-    lang: "en",
-    category: "sans-serif",
-    style: "normal",
-    weight: 400,
-    dataUrl: DEFAULT_DATA_URL,
-  }, options);
-  dataUrl = dataUrl.replace(/\/$/g, ""); // strip trailing slash
+  const {
+    lang = 'en',
+    category = 'sans-serif',
+    style = 'normal',
+    weight = 400,
+  }: ClientOptions = options;
+  const dataUrl = (options.dataUrl || DEFAULT_DATA_URL).replace(/\/$/g, ""); // strip trailing slash
 
   const fontUrlIndices = new Map<string, number>()
   const fontIndices = new Uint8Array(textString.length)
@@ -62,91 +61,98 @@ export async function getFontsForString(
     const codePoint = textString.codePointAt(i) as number;
     const bucketPath = getBucketJsonPathForCodePoint(codePoint);
     charResolutions[i] = bucketPath;
-    if (!requests.has(bucketPath)) {
-      requests.set(bucketPath, (async () => {
-        bucketDataCache[bucketPath] = await loadJSON<BucketData>(`${dataUrl}/${bucketPath}`)
-      })())
+    if (!bucketDataCache[bucketPath] && !requests.has(bucketPath)) {
+      requests.set(
+        bucketPath,
+        loadJSON<BucketData>(`${dataUrl}/${bucketPath}`).then(json => {
+          bucketDataCache[bucketPath] = json;
+        })
+      );
     }
     if (codePoint > 0xffff) i++;
   }
-  await Promise.all(requests.values());
-  requests.clear();
+  return Promise.all(requests.values()).then(() => {
+    requests.clear();
 
-  // Resolve each character to a font in that bucket, and load those font meta files
-  for (let i = 0; i < textString.length; i++) {
-    const codePoint = textString.codePointAt(i) as number;
-    let resolvedFontName: string | null = null;
-    const bucket: BucketData = bucketDataCache[charResolutions[i]];
+    // Resolve each character to a font in that bucket, and load those font meta files
+    for (let i = 0; i < textString.length; i++) {
+      const codePoint = textString.codePointAt(i) as number;
+      let resolvedFontName: string | null = null;
+      const bucket: BucketData = bucketDataCache[charResolutions[i]];
 
-    langLoop: for (let langRE in bucket) {
-      let langMatches = langRegexResults[langRE];
-      if (langMatches === undefined) {
-        langMatches = langRegexResults[langRE] = new RegExp(langRE).test(lang);
-      }
-      if (langMatches) {
-        for (let fontName in bucket[langRE]) {
-          if (isCodePointInBucketCoverage(codePoint, bucket[langRE][fontName])) {
-            resolvedFontName = fontName;
-            break langLoop;
+      langLoop: for (let langRE in bucket) {
+        let langMatches = langRegexResults[langRE];
+        if (langMatches === undefined) {
+          langMatches = langRegexResults[langRE] = new RegExp(langRE).test(lang);
+        }
+        if (langMatches) {
+          for (let fontName in bucket[langRE]) {
+            if (isCodePointInBucketCoverage(codePoint, bucket[langRE][fontName])) {
+              resolvedFontName = fontName;
+              break langLoop;
+            }
           }
         }
       }
-    }
 
-    // No coverage - fallback
-    // TODO - Should we do this fallback or just leave it empty for downstream handling?
-    if (!resolvedFontName) {
-      console.debug(`No font coverage for U+${codePoint.toString(16)}`);
-      resolvedFontName = 'latin';
-    }
-
-    charResolutions[i] = resolvedFontName;
-    if (!requests.has(resolvedFontName)) {
-      requests.set(resolvedFontName, (async () => {
-        fontMetaCache[resolvedFontName] = await loadJSON<FontData>(`${dataUrl}/font-meta/${resolvedFontName}.json`)
-      })())
-    }
-
-    if (codePoint > 0xffff) i++;
-  }
-  await Promise.all(requests.values());
-
-  // Resolve each character to an individual woff file from that font
-  let fontMeta: FontData | null = null;
-  for (let i = 0; i < textString.length; i++) {
-    const codePoint = textString.codePointAt(i) as number;
-
-    // carry forward previous font if it matches or is whitespace
-    // ideally this will usually be true
-    if (fontMeta && (isWhitespace(codePoint) || codePointSetForFont(fontMeta).has(codePoint))) {
-      fontIndices[i] = fontIndices[i - 1];
-    } else {
-      fontMeta = fontMetaCache[charResolutions[i]];
-      // Select a closest-match face and cache
-      let woffUrl = woffUrlsCache[fontMeta.id]
-      if (!woffUrl) {
-        const { typeforms } = fontMeta;
-        const validCategory = findValidKey(typeforms, category, 'sans-serif') as FontCategory;
-        const validStyle = findValidKey(typeforms[validCategory]!, style, 'normal') as FontStyle;
-        const validWeight = findNearestNumber(typeforms[validCategory]?.[validStyle] as number[], weight);
-        woffUrl = woffUrlsCache[fontMeta.id] = `${dataUrl}/font-files/${fontMeta.id}/${validCategory}.${validStyle}.${validWeight}.woff`
+      // No coverage - fallback
+      // TODO - Should we do this fallback or just leave it empty for downstream handling?
+      if (!resolvedFontName) {
+        console.debug(`No font coverage for U+${codePoint.toString(16)}`);
+        resolvedFontName = 'latin';
       }
-      let fontIndex = fontUrlIndices.get(woffUrl)
-      if (fontIndex == null) {
-        fontIndex = fontUrlIndices.size
-        fontUrlIndices.set(woffUrl, fontIndex);
+
+      charResolutions[i] = resolvedFontName;
+      if (!fontMetaCache[resolvedFontName] && !requests.has(resolvedFontName)) {
+        requests.set(
+          resolvedFontName,
+          loadJSON<FontData>(`${dataUrl}/font-meta/${resolvedFontName}.json`).then(json => {
+            fontMetaCache[resolvedFontName!] = json;
+          }),
+        )
       }
-      fontIndices[i] = fontIndex;
+
+      if (codePoint > 0xffff) i++;
     }
-    if (codePoint > 0xffff) {
-      i++;
-      fontIndices[i] = fontIndices[i - 1];
+    return Promise.all(requests.values());
+  }).then(() => {
+    // Resolve each character to an individual woff file from that font
+    let fontMeta: FontData | null = null;
+    for (let i = 0; i < textString.length; i++) {
+      const codePoint = textString.codePointAt(i) as number;
+
+      // carry forward previous font if it matches or is whitespace
+      // ideally this will usually be true
+      if (fontMeta && (isWhitespace(codePoint) || codePointSetForFont(fontMeta).has(codePoint))) {
+        fontIndices[i] = fontIndices[i - 1];
+      } else {
+        fontMeta = fontMetaCache[charResolutions[i]];
+        // Select a closest-match face and cache
+        let woffUrl = woffUrlsCache[fontMeta.id]
+        if (!woffUrl) {
+          const { typeforms } = fontMeta;
+          const validCategory = findValidKey(typeforms, category, 'sans-serif') as FontCategory;
+          const validStyle = findValidKey(typeforms[validCategory]!, style, 'normal') as FontStyle;
+          const validWeight = findNearestNumber(typeforms[validCategory]?.[validStyle] as number[], weight);
+          woffUrl = woffUrlsCache[fontMeta.id] = `${dataUrl}/font-files/${fontMeta.id}/${validCategory}.${validStyle}.${validWeight}.woff`
+        }
+        let fontIndex = fontUrlIndices.get(woffUrl)
+        if (fontIndex == null) {
+          fontIndex = fontUrlIndices.size
+          fontUrlIndices.set(woffUrl, fontIndex);
+        }
+        fontIndices[i] = fontIndex;
+      }
+      if (codePoint > 0xffff) {
+        i++;
+        fontIndices[i] = fontIndices[i - 1];
+      }
     }
-  }
-  return {
-    fontUrls: Array.from(fontUrlIndices.keys()),
-    chars: fontIndices,
-  }
+    return {
+      fontUrls: Array.from(fontUrlIndices.keys()),
+      chars: fontIndices,
+    }
+  });
 }
 
 export function clearCache() {
@@ -154,9 +160,8 @@ export function clearCache() {
   fontMetaCache = {};
 }
 
-async function loadJSON<T>(path: string): Promise<T> {
-  const response = await fetch(path);
-  return await response.json() as T;
+function loadJSON<T>(path: string): Promise<T> {
+  return fetch(path).then(response => response.json() as T);
 }
 
 function firstKey(obj: Record<string, any>): string | undefined {
