@@ -11,9 +11,10 @@ import {
   parseCssUnicodeRangeString,
   BUCKET_SIZE,
   encodeBucketCoverage,
-  getBucketForCodePoint,
   getBucketJsonPathForCodePoint,
-  CodePointSet
+  getBucketStartForCodePoint,
+  getBucketEndForCodePoint,
+  CodePointSet,
 } from "@unicode-font-resolver/shared";
 
 export async function build(
@@ -141,7 +142,7 @@ export async function build(
         if (!isBaseNoto && baseCodePoints.has(codePoint)) return;
 
         const bucketKey = getBucketJsonPathForCodePoint(codePoint);
-        const bucketRange = getBucketForCodePoint(codePoint);
+        const bucketRange = [getBucketStartForCodePoint(codePoint), getBucketEndForCodePoint(codePoint)]
         const bucketObj = bucketsData[bucketKey] || (bucketsData[bucketKey] = {});
         const langRE = langFilters[fontName.replace(/-(sans|serif)/, "")] || ".*";
         const langObj = bucketObj[langRE] || (bucketObj[langRE] = {});
@@ -168,12 +169,14 @@ export async function build(
   }
 
   // Write out the files
+  const fontLicense = readFileSync(`${fontFilesOutputDir}/LICENSE`);
   for (const dir of [fontMetaOutputDir, fontFilesOutputDir, indexOutputDir]) {
     if (existsSync(dir)) {
       rmdirSync(dir, { recursive: true });
     }
     mkdirSync(dir, { recursive: true });
   }
+  writeFileSync(`${fontFilesOutputDir}/LICENSE`, fontLicense);
   for (let i = 0; i < 17; i++) {
     mkdirSync(`${indexOutputDir}/plane${i}`, { recursive: true });
   }

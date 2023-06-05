@@ -1,4 +1,3 @@
-export type BucketRange = [bucketStart: number, bucketEnd: number]
 export type EncodedCoverage = string;
 export type FontStyle = 'normal' | 'italic'
 export type FontCategory = 'sans-serif' | 'serif' | 'monospace';

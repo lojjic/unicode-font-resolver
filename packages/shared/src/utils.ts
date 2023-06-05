@@ -1,22 +1,16 @@
-import { BucketRange, EncodedCoverage } from "./types";
+import { EncodedCoverage } from "./types";
 
 const BUCKET_BIT_SIZE = 8
 export const BUCKET_SIZE = 2 ** BUCKET_BIT_SIZE
-const BUCKET_POSITION_MASK = (1 << BUCKET_BIT_SIZE) - 1
+const BUCKET_POSITION_MASK = BUCKET_SIZE - 1
 const BUCKET_START_MASK = ~BUCKET_POSITION_MASK
 
-
-export function getBucketStringForCodePoint (codePoint: number): string {
-  const [floor, ceil] = getBucketForCodePoint(codePoint)
-  const outputBase = 16
-  return `${floor.toString(outputBase)}-${ceil.toString(outputBase)}`
+export function getBucketStartForCodePoint (codePoint: number) {
+  return codePoint & BUCKET_START_MASK;
 }
 
-
-export function getBucketForCodePoint (codePoint: number): BucketRange {
-  const floor = codePoint & BUCKET_START_MASK
-  const ceil = floor + (1 << BUCKET_BIT_SIZE) - 1
-  return [floor, ceil]
+export function getBucketEndForCodePoint (codePoint: number) {
+  return (codePoint & BUCKET_START_MASK) + BUCKET_SIZE - 1;
 }
 
 export function getPlaneForCodePoint(codePoint: number): number {
@@ -24,13 +18,15 @@ export function getPlaneForCodePoint(codePoint: number): number {
 }
 
 export function getBucketJsonPathForCodePoint(codePoint: number): string {
-  return `codepoint-index/plane${getPlaneForCodePoint(codePoint)}/${getBucketStringForCodePoint(codePoint)}.json`
+  const start = getBucketStartForCodePoint(codePoint).toString(16)
+  const end = getBucketEndForCodePoint(codePoint).toString(16)
+  return `codepoint-index/plane${getPlaneForCodePoint(codePoint)}/${start}-${end}.json`
 }
 
 const COVERAGE_ENCODING_BITS_PER_CHAR = 6
 const COVERAGE_ENCODING_START = 0x30
 
-export function encodeBucketCoverage(ranges: number[][], [bucketStart, bucketEnd]: BucketRange): EncodedCoverage {
+export function encodeBucketCoverage(ranges: number[][], [bucketStart, bucketEnd]: number[]): EncodedCoverage {
   const chars = new Uint8Array(Math.ceil(BUCKET_SIZE / COVERAGE_ENCODING_BITS_PER_CHAR))
   for (let [start, end = start] of ranges) {
     start = Math.max(start, bucketStart)
