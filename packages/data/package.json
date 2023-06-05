@@ -1,7 +1,7 @@
 {
   "name": "@unicode-font-resolver/data",
   "private": true,
-  "version": "0.2.1",
+  "version": "0.2.3",
   "description": "> TODO: description",
   "author": "Jason Johnston",
   "homepage": "",
@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@types/download": "^8.0.2",
-    "@unicode-font-resolver/shared": "^0.2.1",
+    "@unicode-font-resolver/shared": "^0.2.3",
     "download": "^8.0.0",
     "google-font-metadata": "5.0.1"
   }
