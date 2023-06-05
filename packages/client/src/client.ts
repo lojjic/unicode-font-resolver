@@ -118,7 +118,7 @@ export async function getFontsForString(
       fontUrlIndices.set(woffUrl, fontIndex);
     }
     chars.push(fontIndex);
-    if (i > 0xffff) {
+    if (codePoint > 0xffff) {
       chars.push(fontIndex);
       i++;
     }
