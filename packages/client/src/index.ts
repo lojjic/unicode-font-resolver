@@ -1,1 +1,2 @@
-export * from './client'
+export * from "./client";
+export { CodePointSet } from "@unicode-font-resolver/shared";
