@@ -163,7 +163,7 @@ export async function build(
       codePointCounts.push({
         font: fontName,
         count: cpCount,
-        cpsBytes: CodePointSet.fromCssString(rangeString).data.reduce((out, arr) => out + arr.byteLength, 0)
+        cpsBytes: 0, // CodePointSet.fromCssString(rangeString).data.reduce((out, arr) => out + arr.byteLength, 0)
       });
     }
   }
@@ -207,11 +207,11 @@ export async function build(
 
   // console.log(JSON.stringify(allCodePoints._data, (key, val) => val?.byteLength ? val.join(',') : val, 2))
   // console.log(`Full index ${allCodePoints._data.reduce((sum, arr) => sum + arr.byteLength, 0)} bytes`)
-  console.log(codePointCounts
-    .sort((a, b) => a.count - b.count)
-    .map(({ font, count, cpsBytes }) => `${font}: ${count} -> ${cpsBytes}`)
-    .join("\n")
-  );
+  // console.log(codePointCounts
+  //   .sort((a, b) => a.count - b.count)
+  //   .map(({ font, count, cpsBytes }) => `${font}: ${count} -> ${cpsBytes}`)
+  //   .join("\n")
+  // );
 
   // console.log(bucketsForCodePoint(0x1234))
   // console.log(bucketsForCodePoint(0x10234))

@@ -1,71 +1,81 @@
 import 'jest'
-import { readFileSync } from 'fs'
 import { parseCssUnicodeRangeString, CodePointSet } from "../src"
+import { getNotoFonts } from "../../data/src/noto-fonts";
 
-test.skip('foo', () => {
+test('CodePointSet', () => {
 
-  // Load from JSON...
-  const json = JSON.parse(readFileSync('./google-fonts-v2.json', {encoding: 'utf8'}))
-  const fonts: Array<{ name: string, ranges: number[][] }> = []
-  for (let name in json) {
-    if (name.startsWith('noto-sans')) {
-      for (let subset in json[name].unicodeRange) {
-        // Exclude latin ranges from non-base fonts
-        if (name !== 'noto-sans' && subset.startsWith('latin')) continue
-        fonts.push({
-          name: `${name} - ${subset}`,
-          ranges: parseCssUnicodeRangeString(json[name].unicodeRange[subset]).filter(range =>
-              // Some include latinish ranges, strip those out
-              name === 'noto-sans' || (range[0] !== 0 && range[1] !== 0xff)
-          )
-        })
-      }
-    }
-  }
+  const fonts = getNotoFonts()
+
+  let totalQueryTime = 0
+  let totalBuildTime = 0
+  let totalTests = 0
 
   let totalArrays = 0
   let totalBytes = 0
-  fonts.forEach(({name, ranges}) => {
-    let testObj = new CodePointSet()
+  for (const fontName in fonts) {
+    for (const rangeName in fonts[fontName].unicodeRange) {
+      // if (fontName !== 'noto-sans' || rangeName !== 'latin') continue
+      // if (rangeName !== 'math') continue
 
-    console.log(`=== ${name} ===`)
+      totalTests++
+      const cssRangeString = fonts[fontName].unicodeRange[rangeName]
+      const ranges = parseCssUnicodeRangeString(cssRangeString)
+      let testObj = new CodePointSet()
 
-    console.time('add')
-    ranges.forEach(([start, end]) => {
-      testObj.add(start, end)
-    })
-    console.timeEnd('add')
+      // console.log(`=== ${fontName} ${rangeName} ===`)
 
-    console.log(`Min/max: ${testObj.min}-${testObj.max}`)
+      const buildStart = performance.now()
+      ranges.forEach(([start, end = start]) => {
+        for (let i = start; i <= end; i++) {
+          testObj.add(i)
+        }
+      })
+      totalBuildTime += performance.now() - buildStart
 
-    // validate
-    ranges.forEach(([start, end = start]) => {
-      for (let i = start; i <= end; i++) {
-        if (!testObj.has(i)) {
-          throw `Oops - code point U+${i.toString(16)} not found`
+      // console.log(cssRangeString + '\n' + JSON.stringify(testObj.data))
+      // console.log(`Min/max: ${testObj.min}-${testObj.max}`)
+
+      // validate
+      ranges.forEach(([start, end = start]) => {
+        for (let i = start; i <= end; i++) {
+          expect(testObj.has(i)).toBe(true);
+        }
+      })
+
+      // query perf test
+      const queryStart = performance.now()
+      for (let i = 0; i < 0xffff; i++) {
+        if (testObj.has(i * 10)) {
+          //console.log('match')
         }
       }
-    })
+      totalQueryTime += performance.now() - queryStart
 
-    console.time('read')
-    // console.log(testObj.contains(0xfee3))
-    for (let i = 0; i < 10000; i++) {
-      if (testObj.has(i * 10)) {
-        //console.log('match')
-      }
+      // const serialized = testObj.serialize()
+      // const testObj2 = new CodePointSet()
+      // testObj2.deserialize(serialized)
+      // expect(testObj2.serialize()).toEqual(serialized);
+
+      // const css = cssRangeString.replace(/U\+/g, '')
+      // if (serialized.length > css.length) {
+      //   console.log(serialized + '\n' + css)
+      // }
+
+      // console.log(fontName + '\n' + testObj.serialize() + '\n' + cssRangeString.replace(/U\+/g, ''))
+      // console.log(JSON.stringify(testObj.data, (_key, val) =>
+      //         (val && val.byteLength) ? `[${val.byteLength * 8 / val.length}]${val.join(',')}` : val
+      //     , 0))
+      // console.log(testObj.data.length + ' arrays')
+      // const bytes = testObj.data.reduce((sum, arr) => sum + arr.byteLength, 0)
+      // console.log(`${bytes} bytes in memory`)
+      // totalArrays += testObj.data.length
+      // totalBytes += bytes
     }
-    console.timeEnd('read')
-    console.log(JSON.stringify(testObj.data, (_key, val) =>
-            (val && val.byteLength) ? `[${val.byteLength * 8 / val.length}]${val.join(',')}` : val
-        , 0))
-    console.log(testObj.data.length + ' arrays')
-    const bytes = testObj.data.reduce((sum, arr) => sum + arr.byteLength, 0)
-    console.log(`${bytes} bytes in memory`)
-    totalArrays += testObj.data.length
-    totalBytes += bytes
-  })
+  }
 
-  console.log(`== Total fonts: ${fonts.length} ==`)
-  console.log(`== Total arrays: ${totalArrays} ==`)
-  console.log(`== Total bytes: ${totalBytes} ==`)
+  console.log(`== Average build time: ${totalBuildTime / totalTests} ==`)
+  console.log(`== Average query time: ${totalQueryTime / totalTests} ==`)
+  // console.log(`== Total fonts: ${fonts.length} ==`)
+  // console.log(`== Total arrays: ${totalArrays} ==`)
+  // console.log(`== Total bytes: ${totalBytes} ==`)
 })

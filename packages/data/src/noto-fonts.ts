@@ -1,12 +1,13 @@
 import type { FontObjectV2 } from "google-font-metadata";
 import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 
 export function getNotoFonts() {
   // We get errors about require vs import if we try to just
   // `import {APIv2} from 'google-font-metadata'` like normal ... until I can
   // figure out why, I'll use this big hammer to load it manually.
   const fullJSON: FontObjectV2 = JSON.parse(readFileSync(
-    "../../node_modules/google-font-metadata/data/google-fonts-v2.json",
+    resolve(__dirname, `../../../node_modules/google-font-metadata/data/google-fonts-v2.json`),
     { encoding: "utf8" }
   ));
 

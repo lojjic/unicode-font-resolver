@@ -18,7 +18,9 @@ const DEFAULT_DATA_URL = `https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolv
 function codePointSetForFont(font: FontData) {
   let set = codePointSets.get(font);
   if (!set) {
-    codePointSets.set(font, (set = CodePointSet.fromCssString(font.ranges)));
+    set = new CodePointSet()
+    forEachCodePointInString(font.ranges, cp => set.add(cp))
+    codePointSets.set(font, set);
   }
   return set;
 }
