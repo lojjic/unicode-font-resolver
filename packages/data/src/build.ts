@@ -90,7 +90,9 @@ export async function build(
       // Build metadata for this font subset
       const meta = fontMetaData[subsetId] || (fontMetaData[subsetId] = {
         id: subsetId,
-        ranges: rangeString.replace(/U\+/g, ""),
+        ranges: rangeString
+          .replace(/U\+0{0,3}/g, '')
+          .replace(/-0+/g, '-'),
         typeforms: {}
       });
       if (rangeString.replace(/U\+/g, "") !== fontMetaData[subsetId].ranges) {
