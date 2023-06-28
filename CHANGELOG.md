@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.1](https://github.com/lojjic/unicode-font-resolver/compare/v0.3.0...v0.3.1) (2023-06-28)
+
+### Bug Fixes
+
+- cache JSON requests in flight to avoid redundant fetches in parallel ([a053621](https://github.com/lojjic/unicode-font-resolver/commit/a053621278a649e50cc8b3d929976406464c14b7))
+
 # [0.3.0](https://github.com/lojjic/unicode-font-resolver/compare/v0.2.3...v0.3.0) (2023-06-27)
 
 ### Features
