@@ -8,8 +8,8 @@ import {
 
 import {version as dataVersion} from '@unicode-font-resolver/data/package.json';
 
-let bucketDataCache: { [url: string]: BucketData } = {};
-let fontMetaCache: { [url: string]: FontData } = {};
+let bucketDataCache: { [key: string]: BucketData } = {};
+let fontMetaCache: { [key: string]: FontData } = {};
 const codePointSets = new WeakMap();
 
 const DEFAULT_DATA_URL = `https://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@v${dataVersion}/packages/data`
@@ -162,8 +162,15 @@ export function clearCache() {
   fontMetaCache = {};
 }
 
+const jsonCache = new Map<string, Promise<any>>()
+
 function loadJSON<T>(path: string): Promise<T> {
-  return fetch(path).then(response => response.json() as T);
+  let req = jsonCache.get(path) as Promise<T> | undefined
+  if (!req) {
+    req = fetch(path).then(response => response.json() as T);
+    jsonCache.set(path, req);
+  }
+  return req
 }
 
 function firstKey(obj: Record<string, any>): string | undefined {
