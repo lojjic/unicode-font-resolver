@@ -13,14 +13,10 @@ export function getBucketEndForCodePoint (codePoint: number) {
   return (codePoint & BUCKET_START_MASK) + BUCKET_SIZE - 1;
 }
 
-export function getPlaneForCodePoint(codePoint: number): number {
-  return (codePoint & 0xff0000) / 0x10000
-}
-
 export function getBucketJsonPathForCodePoint(codePoint: number): string {
   const start = getBucketStartForCodePoint(codePoint).toString(16)
   const end = getBucketEndForCodePoint(codePoint).toString(16)
-  return `codepoint-index/plane${getPlaneForCodePoint(codePoint)}/${start}-${end}.json`
+  return `codepoint-index/plane${codePoint >> 16}/${start}-${end}.json`
 }
 
 const COVERAGE_ENCODING_BITS_PER_CHAR = 6
