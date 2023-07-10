@@ -185,9 +185,9 @@ function findNearestNumber(candidates: number[], target: number) {
   let nearest = target;
   if (!candidates.includes(nearest)) {
     nearest = Infinity;
-    for (let n in candidates) {
-      if (Math.abs(+n - target) < Math.abs(nearest - target)) {
-        nearest = +n;
+    for (let i = 0; i < candidates.length; i++) {
+      if (Math.abs(candidates[i] - target) < Math.abs(nearest - target)) {
+        nearest = candidates[i];
       }
     }
   }
