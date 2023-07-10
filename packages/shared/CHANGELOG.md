@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.3.2](https://github.com/lojjic/unicode-font-resolver/compare/v0.3.1...v0.3.2) (2023-07-10)
+
+### Bug Fixes
+
+- remove unused exported function ([a45df5a](https://github.com/lojjic/unicode-font-resolver/commit/a45df5a4f6eb11d87e74a8006699eab79f911dd0))
+
 # [0.3.0](https://github.com/lojjic/unicode-font-resolver/compare/v0.2.3...v0.3.0) (2023-06-27)
 
 ### Performance Improvements
