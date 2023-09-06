@@ -1,5 +1,6 @@
 const ts = require('rollup-plugin-ts')
 const json = require('@rollup/plugin-json')
+const copy = require("rollup-plugin-copy");
 // const terser = require('@rollup/plugin-terser')
 
 module.exports = [
@@ -19,7 +20,12 @@ module.exports = [
     plugins: [
       json(),
       ts({tsconfig: '../../tsconfig.json'}),
-      //terser()
+      //terser(),
+      copy({
+        targets: [
+          {src: '../data/schema-version.json', dest: 'dist'}
+        ]
+      })
     ]
   }
 ];

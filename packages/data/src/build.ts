@@ -16,6 +16,7 @@ import {
   getBucketEndForCodePoint,
   CodePointSet,
 } from "@unicode-font-resolver/shared";
+import {version as schemaVersion} from "../schema-version.json"
 
 export async function build(
   outputRootDir: string,
@@ -65,12 +66,8 @@ export async function build(
       if (subsetName !== fontName.replace(/noto-(sans|serif|naskh)-/, "")) {
         subsetId += "-" + subsetName.replace(/[\[\]]/g, "");
       }
-      subsetId = subsetId.replace(/^noto-(sans(-mono)?|serif|naskh)?-?/, "");
-      // const fontId = fontName.replace(/-(sans(-mono)?|serif|naskh)/, '')
-      // let subsetId = fontId
-      // if (subsetName !== fontName.replace(/noto-(sans|serif|naskh)-/, '')) {
-      //   subsetId += '.' + subsetName.replace(/[\[\]]/g, '')
-      // }
+      subsetId = subsetId.replace(/^noto-(sans(-mono)?|serif|naskh)?-?/, "")
+        .replace(/-(music|symbols)$/, "")
 
       // Drop purely redundant Latin subsets - this assumes that if they're using the Latin ranges
       // exactly as declared in the base Latin font, those chars are just being included for
@@ -95,11 +92,6 @@ export async function build(
           .replace(/-0+/g, '-'),
         typeforms: {}
       });
-      if (rangeString.replace(/U\+/g, "") !== fontMetaData[subsetId].ranges) {
-        console.warn(`WARN: Unicode range mismatch: ${fontName} -> ${subsetId}`);
-        console.warn("A: " + rangeString.replace(/U\+/g, ""));
-        console.warn("B: " + fontMetaData[subsetId].ranges);
-      }
       if (meta.typeforms[category]) {
         console.warn(`WARN: Duplicate typeform category ${category}: ${fontName} -> ${subsetId}`);
       }
@@ -116,19 +108,6 @@ export async function build(
             });
           }
         });
-        // As object mapping weights to urls...
-        // const weightsObj = stylesObj[style] ??= {}
-        // json[fontName].weights.forEach((weight: number) => {
-        //   const sourceUrl = json[fontName].variants[weight]?.[style]?.[subsetName]?.url?.woff
-        //   if (sourceUrl) {
-        //     const fileName = `${category}.${style}.${weight}.woff`
-        //     weightsObj[weight] = sourceUrl
-        //     fontsToDownload.push({
-        //       sourceUrl,
-        //       localPath: `${fontsOutputDir}/${subsetId}/${fileName}`,
-        //     })
-        //   }
-        // })
       });
 
       let cpCount = 0;
@@ -183,10 +162,10 @@ export async function build(
     mkdirSync(`${indexOutputDir}/plane${i}`, { recursive: true });
   }
   for (let path in bucketsData) {
-    writeFileSync(`${outputRootDir}/${path}`, stringify(bucketsData[path]));
+    writeFileSync(`${outputRootDir}/${path}`, stringify([schemaVersion, bucketsData[path]]));
   }
   for (let id in fontMetaData) {
-    writeFileSync(`${fontMetaOutputDir}/${id}.json`, stringify(fontMetaData[id]));
+    writeFileSync(`${fontMetaOutputDir}/${id}.json`, stringify([schemaVersion, fontMetaData[id]]));
     mkdirSync(`${fontFilesOutputDir}/${id}`, { recursive: true });
   }
 

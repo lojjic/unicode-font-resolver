@@ -22,3 +22,8 @@ export type BucketData = {
     [fontId: string]: EncodedCoverage
   }
 }
+
+export type DataEnvelope<T> = [
+  schemaVersion: number,
+  data: T,
+]

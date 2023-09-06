@@ -3,10 +3,14 @@ import {
   isCodePointInBucketCoverage,
   CodePointSet,
   FontData,
-  BucketData, FontStyle, FontCategory, forEachCodePointInString, FontWeight
+  BucketData,
+  FontStyle,
+  FontCategory,
+  forEachCodePointInString,
+  DataEnvelope,
 } from "@unicode-font-resolver/shared";
-
 import {version as dataVersion} from '@unicode-font-resolver/data/package.json';
+import {version as schemaVersion} from '@unicode-font-resolver/data/schema-version.json'
 
 let bucketDataCache: { [key: string]: BucketData } = {};
 let fontMetaCache: { [key: string]: FontData } = {};
@@ -48,7 +52,7 @@ export function getFontsForString(
     style = 'normal',
     weight = 400,
   }: ClientOptions = options;
-  const dataUrl = (options.dataUrl || DEFAULT_DATA_URL).replace(/\/$/g, ""); // strip trailing slash
+  let dataUrl = (options.dataUrl || DEFAULT_DATA_URL).replace(/\/$/g, ""); // strip trailing slash
 
   const fontUrlIndices = new Map<string, number>()
   const fontIndices = new Uint8Array(textString.length)
@@ -57,6 +61,38 @@ export function getFontsForString(
 
   const charResolutions = new Array<string>(textString.length);
   const requests = new Map<string, Promise<void>>()
+  let loggedCustomDataFailure = false
+
+  function loadJSON<T>(path: string): Promise<T> {
+    let req = jsonCache.get(path) as Promise<T> | undefined
+    if (!req) {
+      req = fetch(dataUrl + '/' + path).then(response => {
+        if (!response.ok) {
+          throw new Error(response.statusText)
+        }
+        return response.json().then((json: DataEnvelope<T>) => {
+          if (!Array.isArray(json) || json[0] !== schemaVersion) {
+            throw new Error(`Incorrect schema version; need ${schemaVersion}, got ${json[0]}`)
+          }
+          return json[1];
+        })
+      }).catch((err) => {
+        if (dataUrl !== DEFAULT_DATA_URL) {
+          // Just log one failure per query
+          if (!loggedCustomDataFailure) {
+            console.error(`unicode-font-resolver: Failed loading from dataUrl "${dataUrl}", trying default CDN. ${err.message}`);
+            loggedCustomDataFailure = true;
+          }
+          dataUrl = DEFAULT_DATA_URL;
+          jsonCache.delete(path);
+          return loadJSON<T>(path);
+        }
+        throw err;
+      });
+      jsonCache.set(path, req);
+    }
+    return req
+  }
 
   // Resolve each character to a bucket, and load those bucket files
   for (let i = 0; i < textString.length; i++) {
@@ -66,7 +102,7 @@ export function getFontsForString(
     if (!bucketDataCache[bucketPath] && !requests.has(bucketPath)) {
       requests.set(
         bucketPath,
-        loadJSON<BucketData>(`${dataUrl}/${bucketPath}`).then(json => {
+        loadJSON<BucketData>(bucketPath).then(json => {
           bucketDataCache[bucketPath] = json;
         })
       );
@@ -108,7 +144,7 @@ export function getFontsForString(
       if (!fontMetaCache[resolvedFontName] && !requests.has(resolvedFontName)) {
         requests.set(
           resolvedFontName,
-          loadJSON<FontData>(`${dataUrl}/font-meta/${resolvedFontName}.json`).then(json => {
+          loadJSON<FontData>(`font-meta/${resolvedFontName}.json`).then(json => {
             fontMetaCache[resolvedFontName!] = json;
           }),
         )
@@ -163,15 +199,6 @@ export function clearCache() {
 }
 
 const jsonCache = new Map<string, Promise<any>>()
-
-function loadJSON<T>(path: string): Promise<T> {
-  let req = jsonCache.get(path) as Promise<T> | undefined
-  if (!req) {
-    req = fetch(path).then(response => response.json() as T);
-    jsonCache.set(path, req);
-  }
-  return req
-}
 
 function firstKey(obj: Record<string, any>): string | undefined {
   for (const i in obj) return i;
