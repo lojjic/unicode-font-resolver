@@ -3,6 +3,16 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [0.4.0](https://github.com/lojjic/unicode-font-resolver/compare/v0.3.2...v0.4.0) (2023-09-07)
+
+### Bug Fixes
+
+- override incorrect unicode ranges for symbols fonts ([#2](https://github.com/lojjic/unicode-font-resolver/issues/2)) ([b4cea49](https://github.com/lojjic/unicode-font-resolver/commit/b4cea49ec220d11cb8579f98ffc3ff3f08c55ad3))
+
+### Features
+
+- add schema version to the data files and check it in the client ([900ff30](https://github.com/lojjic/unicode-font-resolver/commit/900ff305ade1ab765108dc5a5d347226c63970d8))
+
 ## [0.3.2](https://github.com/lojjic/unicode-font-resolver/compare/v0.3.1...v0.3.2) (2023-07-10)
 
 **Note:** Version bump only for package @unicode-font-resolver/data
