@@ -3,7 +3,12 @@
   "version": "0.4.0",
   "description": "A JavaScript client for resolving a unicode string to a set of fonts that cover its characters",
   "author": "Jason Johnston",
-  "homepage": "",
+  "homepage": "https://github.com/lojjic/unicode-font-resolver",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lojjic/unicode-font-resolver.git",
+    "directory": "packages/client"
+  },
   "license": "MIT",
   "main": "dist/client.umd.js",
   "module": "dist/client.esm.js",
