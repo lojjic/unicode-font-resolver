@@ -11,6 +11,7 @@ import {
 } from "@unicode-font-resolver/shared";
 import {version as dataVersion} from '@unicode-font-resolver/data/package.json';
 import {version as schemaVersion} from '@unicode-font-resolver/data/schema-version.json'
+import { detectLanguage } from "./detectLanguage";
 
 let bucketDataCache: { [key: string]: BucketData } = {};
 let fontMetaCache: { [key: string]: FontData } = {};
@@ -47,7 +48,7 @@ export function getFontsForString(
   options: ClientOptions = {}
 ): Promise<Result> {
   const {
-    lang = 'en',
+    lang = detectLanguage(textString),
     category = 'sans-serif',
     style = 'normal',
     weight = 400,

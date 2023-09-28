@@ -41,6 +41,7 @@ describe('Client', () => {
       totalBytesGzip += gzipSize(text);
       totalBytesBrotli += brotliSize(url);
       return {
+        ok: true,
         async json() {
           return JSON.parse(text);
         }
