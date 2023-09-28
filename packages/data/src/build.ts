@@ -89,7 +89,8 @@ export async function build(
         id: subsetId,
         ranges: rangeString
           .replace(/U\+0{0,3}/g, '')
-          .replace(/-0+/g, '-'),
+          .replace(/-0+/g, '-')
+          .toUpperCase(),
         typeforms: {}
       });
       if (meta.typeforms[category]) {
