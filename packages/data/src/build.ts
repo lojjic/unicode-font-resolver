@@ -8,7 +8,7 @@ import {
   FontData,
   FontStyle,
   forEachCodePointInString,
-  parseCssUnicodeRangeString,
+  parseUnicodeRangeString,
   BUCKET_SIZE,
   encodeBucketCoverage,
   getBucketJsonPathForCodePoint,
@@ -129,7 +129,7 @@ export async function build(
         const langRE = langFilters[fontName.replace(/-(sans|serif)/, "")] || ".*";
         const langObj = bucketObj[langRE] || (bucketObj[langRE] = {});
         if (!langObj[subsetId]) {
-          langObj[subsetId] = encodeBucketCoverage(parseCssUnicodeRangeString(rangeString), bucketRange);
+          langObj[subsetId] = encodeBucketCoverage(parseUnicodeRangeString(rangeString), bucketRange);
         }
 
         // maxSubsetsInBucket = Math.max(maxSubsetsInBucket, leaf.size)

@@ -1,5 +1,5 @@
 import 'jest'
-import { parseCssUnicodeRangeString, CodePointSet } from "../src"
+import { parseUnicodeRangeString, CodePointSet } from "../src"
 import { getNotoFonts } from "../../data/src/noto-fonts";
 
 test('CodePointSet', () => {
@@ -19,7 +19,7 @@ test('CodePointSet', () => {
 
       totalTests++
       const cssRangeString = fonts[fontName].unicodeRange[rangeName]
-      const ranges = parseCssUnicodeRangeString(cssRangeString)
+      const ranges = parseUnicodeRangeString(cssRangeString)
       let testObj = new CodePointSet()
 
       // console.log(`=== ${fontName} ${rangeName} ===`)
