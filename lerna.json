@@ -7,7 +7,7 @@
       "conventionalCommits": true
     },
     "publish": {
-      "allowBranch": "main"
+      "allowBranch": "1.x"
     }
   },
   "access": "public"
