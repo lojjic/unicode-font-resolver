@@ -1,6 +1,6 @@
 {
   "name": "@unicode-font-resolver/client",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A JavaScript client for resolving a unicode string to a set of fonts that cover its characters",
   "author": "Jason Johnston",
   "homepage": "https://github.com/lojjic/unicode-font-resolver",
@@ -20,8 +20,8 @@
   },
   "devDependencies": {
     "@types/node-fetch": "^2.6.2",
-    "@unicode-font-resolver/data": "^1.0.0",
-    "@unicode-font-resolver/shared": "^1.0.0",
+    "@unicode-font-resolver/data": "^1.0.1",
+    "@unicode-font-resolver/shared": "^1.0.1",
     "brotli-size": "^4.0.0",
     "gzip-size": "^6.0.0",
     "node-fetch": "^2.6.8"

@@ -3,6 +3,13 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.1](https://github.com/lojjic/unicode-font-resolver/compare/v1.0.0...v1.0.1) (2023-09-29)
+
+### Bug Fixes
+
+- better lang detection using regex unicode script classes ([c5c3d5f](https://github.com/lojjic/unicode-font-resolver/commit/c5c3d5f220039b22a4734f0f2907d7bd0d6cdb99))
+- detect ko/jp when no lang is set ([bbc894c](https://github.com/lojjic/unicode-font-resolver/commit/bbc894c8e6a94f2d5d9132a288a9b3be55cc9cf5))
+
 # [1.0.0](https://github.com/lojjic/unicode-font-resolver/compare/v0.4.0...v1.0.0) (2023-09-08)
 
 **Note:** Version bump only for package @unicode-font-resolver/client
