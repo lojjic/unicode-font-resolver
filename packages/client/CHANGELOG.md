@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.0.2](https://github.com/lojjic/unicode-font-resolver/compare/v1.0.1...v1.0.2) (2023-10-02)
+
+### Bug Fixes
+
+- fallback to other langs when preferred lang doesn't have coverage ([c743aff](https://github.com/lojjic/unicode-font-resolver/commit/c743afffa4b9ed204128ddebb12a15166acf252f))
+
 ## [1.0.1](https://github.com/lojjic/unicode-font-resolver/compare/v1.0.0...v1.0.1) (2023-09-29)
 
 ### Bug Fixes
