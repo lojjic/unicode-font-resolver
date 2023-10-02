@@ -119,16 +119,34 @@ export function getFontsForString(
       let resolvedFontName: string | null = null;
       const bucket: BucketData = bucketDataCache[charResolutions[i]];
 
-      langLoop: for (let langRE in bucket) {
+      // Check first for coverage in fonts matching the preferred lang
+      let preferredLangRE: string | undefined;
+      for (const langRE in bucket) {
         let langMatches = langRegexResults[langRE];
         if (langMatches === undefined) {
-          langMatches = langRegexResults[langRE] = new RegExp(langRE).test(lang);
+          langMatches = langRegexResults[langRE] = new RegExp(langRE).test(lang || 'en');
         }
         if (langMatches) {
+          preferredLangRE = langRE;
           for (let fontName in bucket[langRE]) {
             if (isCodePointInBucketCoverage(codePoint, bucket[langRE][fontName])) {
               resolvedFontName = fontName;
-              break langLoop;
+              break;
+            }
+          }
+          break;
+        }
+      }
+      // If the lang hint didn't match any fonts, or those fonts didn't cover this
+      // character, check the other languages. This is common in CJK.
+      if (!resolvedFontName) {
+        langLoop: for (const langRE in bucket) {
+          if (langRE !== preferredLangRE) {
+            for (let fontName in bucket[langRE]) {
+              if (isCodePointInBucketCoverage(codePoint, bucket[langRE][fontName])) {
+                resolvedFontName = fontName;
+                break langLoop;
+              }
             }
           }
         }
